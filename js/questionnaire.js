@@ -65,10 +65,14 @@ function createSAMScale(containerId, dimension) {
         item.dataset.value = i;
         item.onclick = () => selectRating(dimension, i);
         
+        // 计算对应的图标索引（5个小人对应9个级别）
+        // 1,2→小人1  3,4→小人2  5,6→小人3  7,8→小人4  9→小人5
+        const iconIndex = Math.min(Math.floor((i - 1) / 2), 4);
+        
         // SAM图标
         const icon = document.createElement('img');
         icon.className = 'sam-icon';
-        icon.src = CONFIG.SAM_ICONS[dimension][i - 1];
+        icon.src = CONFIG.SAM_ICONS[dimension][iconIndex];
         icon.alt = `${dimension} ${i}`;
         
         // 单选圆圈
