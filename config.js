@@ -35,10 +35,6 @@ const CONFIG = {
             'images/sam/valence/v3.png',
             'images/sam/valence/v4.png',
             'images/sam/valence/v5.png',
-            'images/sam/valence/v6.png',
-            'images/sam/valence/v7.png',
-            'images/sam/valence/v8.png',
-            'images/sam/valence/v9.png'
         ],
         arousal: [
             'images/sam/arousal/a1.png',
@@ -46,10 +42,6 @@ const CONFIG = {
             'images/sam/arousal/a3.png',
             'images/sam/arousal/a4.png',
             'images/sam/arousal/a5.png',
-            'images/sam/arousal/a6.png',
-            'images/sam/arousal/a7.png',
-            'images/sam/arousal/a8.png',
-            'images/sam/arousal/a9.png'
         ],
         dominance: [
             'images/sam/dominance/d1.png',
@@ -57,13 +49,12 @@ const CONFIG = {
             'images/sam/dominance/d3.png',
             'images/sam/dominance/d4.png',
             'images/sam/dominance/d5.png',
-            'images/sam/dominance/d6.png',
-            'images/sam/dominance/d7.png',
-            'images/sam/dominance/d8.png',
-            'images/sam/dominance/d9.png'
         ]
-    }
+    },
+    SAM_LEVELS: 9
 };
+
+
 
 // 从JSON加载图片URL
 async function loadImageURLs() {
