@@ -82,7 +82,7 @@ async function loadImageURLs() {
 // 生成测试图片数据
 function generateTestImages() {
     const testImages = [];
-    for (let i = 1; i <= 3; i++) {
+    for (let i = 1; i <= 200; i++) {
         const num = String(i).padStart(3, '0');
         testImages.push({
             filename: `A${num}.bmp`,
@@ -91,4 +91,5 @@ function generateTestImages() {
     }
     return testImages;
 }
+
 
