@@ -63,19 +63,20 @@ function createSAMScale(containerId, dimension) {
     const container = document.getElementById(containerId);
     container.innerHTML = '';
     
-    const levels = CONFIG.SAM_LEVELS || 5; // 默认5级
-    
-    for (let i = 1; i <= levels; i++) {
+    for (let i = 1; i <= 9; i++) {  // ← 必须是9！
         const item = document.createElement('div');
         item.className = 'sam-item';
         item.dataset.dimension = dimension;
         item.dataset.value = i;
         item.onclick = () => selectRating(dimension, i);
         
+        // 计算对应的图标索引（5个小人对应9个级别）
+        const iconIndex = Math.min(Math.floor((i - 1) / 2), 4);
+        
         // SAM图标
         const icon = document.createElement('img');
         icon.className = 'sam-icon';
-        icon.src = CONFIG.SAM_ICONS[dimension][i - 1];
+        icon.src = CONFIG.SAM_ICONS[dimension][iconIndex];
         icon.alt = `${dimension} ${i}`;
         
         // 单选圆圈
@@ -419,3 +420,4 @@ function showLoading(show) {
         overlay.classList.remove('active');
     }
 }
+
