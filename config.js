@@ -1,4 +1,6 @@
 // 问卷配置文件
+const BATCH_ID = 'batch1';
+
 const CONFIG = {
     // Google Sheets Web App URL（部署后填入）
     GOOGLE_SHEETS_URL: 'https://script.google.com/macros/s/AKfycbx3daZshnasE8CCn_S-ETRoE-3i6SkF4CAODN3N2GDd0M94RJXPzLRZnz2w545Q1tGdyg/exec',
@@ -103,4 +105,5 @@ function stringToSeed(str) {
         hash = hash & hash;
     }
     return Math.abs(hash);
+
 }
