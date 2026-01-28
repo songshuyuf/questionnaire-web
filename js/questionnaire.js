@@ -34,6 +34,11 @@ function startQuestionnaire() {
     // 记录开始时间
     startTime = new Date();
     
+    // 根据用户ID随机打乱图片顺序
+    const seed = stringToSeed(userId);
+    CONFIG.IMAGES = seededShuffle(CONFIG.IMAGES, seed);
+    console.log(`用户 ${userId} 的图片顺序已随机打乱（种子：${seed}）`);
+    
     // 切换到问卷页面
     showPage('questionnairePage');
     
@@ -58,21 +63,19 @@ function createSAMScale(containerId, dimension) {
     const container = document.getElementById(containerId);
     container.innerHTML = '';
     
-    for (let i = 1; i <= 9; i++) {
+    const levels = CONFIG.SAM_LEVELS || 5; // 默认5级
+    
+    for (let i = 1; i <= levels; i++) {
         const item = document.createElement('div');
         item.className = 'sam-item';
         item.dataset.dimension = dimension;
         item.dataset.value = i;
         item.onclick = () => selectRating(dimension, i);
         
-        // 计算对应的图标索引（5个小人对应9个级别）
-        // 1,2→小人1  3,4→小人2  5,6→小人3  7,8→小人4  9→小人5
-        const iconIndex = Math.min(Math.floor((i - 1) / 2), 4);
-        
         // SAM图标
         const icon = document.createElement('img');
         icon.className = 'sam-icon';
-        icon.src = CONFIG.SAM_ICONS[dimension][iconIndex];
+        icon.src = CONFIG.SAM_ICONS[dimension][i - 1];
         icon.alt = `${dimension} ${i}`;
         
         // 单选圆圈
@@ -263,6 +266,7 @@ function saveProgress() {
         userId: userId,
         currentIndex: currentIndex,
         responses: responses,
+        shuffledOrder: CONFIG.IMAGES, // 保存随机顺序
         lastUpdate: new Date().toISOString()
     };
     
@@ -283,6 +287,12 @@ function loadProgress() {
                 currentIndex = data.currentIndex;
                 responses = data.responses || [];
                 
+                // 恢复用户的随机顺序
+                if (data.shuffledOrder) {
+                    CONFIG.IMAGES = data.shuffledOrder;
+                    console.log('已恢复用户的图片顺序');
+                }
+                
                 document.getElementById('userId').value = userId;
             }
         } catch (e) {
@@ -294,6 +304,67 @@ function loadProgress() {
 // 清除保存的进度
 function clearProgress() {
     localStorage.removeItem('questionnaireProgress');
+}
+
+// 保存并退出（提前交卷）
+async function saveAndExit() {
+    // 保存当前评分
+    if (validateCurrentRatings()) {
+        saveCurrentRatings();
+    }
+    
+    // 统计已完成的数量
+    const completedCount = responses.filter(r => r !== null && r !== undefined).length;
+    
+    if (completedCount === 0) {
+        alert('您还没有完成任何图片的评分！');
+        return;
+    }
+    
+    // 确认是否保存并退出
+    const confirmed = confirm(
+        `您已完成 ${completedCount} / ${CONFIG.IMAGES.length} 张图片的评分。\n\n` +
+        `点击"确定"将保存已完成的数据并退出。\n` +
+        `下次打开问卷可以继续未完成的部分。`
+    );
+    
+    if (!confirmed) {
+        return;
+    }
+    
+    // 显示加载提示
+    showLoading(true);
+    
+    // 准备提交数据（只提交已完成的）
+    const completedResponses = responses.filter(r => r !== null && r !== undefined);
+    
+    const submissionData = {
+        userId: userId,
+        startTime: startTime.toISOString(),
+        endTime: new Date().toISOString(),
+        duration: Math.floor((new Date() - startTime) / 1000),
+        totalImages: CONFIG.IMAGES.length,
+        completedImages: completedCount,
+        isPartialSubmission: true, // 标记为部分提交
+        responses: completedResponses
+    };
+    
+    // 提交到Google Sheets
+    const success = await submitToGoogleSheets(submissionData);
+    
+    // 隐藏加载提示
+    showLoading(false);
+    
+    if (success) {
+        alert(
+            `数据保存成功！\n\n` +
+            `已完成：${completedCount} / ${CONFIG.IMAGES.length} 张\n` +
+            `您的进度已保存，下次可以继续完成。`
+        );
+        // 不清除进度，允许继续
+    } else {
+        alert('数据保存失败，请检查网络连接。您的进度仍保存在本地。');
+    }
 }
 
 // 提交问卷
