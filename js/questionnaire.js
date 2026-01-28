@@ -55,6 +55,7 @@ function startQuestionnaire() {
                 responses = [];
                 submittedIndices = new Set();
                 currentIndex = 0;
+                CONFIG.IMAGES_SHUFFLED = false;
             } else if (data.userId === newUserId) {
                 // 同一个人，恢复进度
                 console.log('检测到同一用户，恢复进度');
@@ -477,3 +478,4 @@ function showLoading(show) {
         overlay.classList.remove('active');
     }
 }
+
