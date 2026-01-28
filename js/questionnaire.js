@@ -3,6 +3,7 @@
 // 全局变量
 let currentIndex = 0;
 let responses = [];
+let submittedIndices = new Set(); // 记录已提交的图片索引
 let currentRatings = {
     valence: null,
     arousal: null
@@ -10,7 +11,7 @@ let currentRatings = {
 let userName = '';
 let userGender = '';
 let userAge = '';
-let userId = ''; // 自动生成的唯一ID
+let userId = ''; // 自动生成的唯一ID（不含时间戳）
 let startTime = null;
 
 // 页面加载完成后初始化
@@ -39,14 +40,13 @@ function startQuestionnaire() {
         return;
     }
     
-    // 生成唯一ID：姓名+性别+年龄+时间戳
-    const timestamp = Date.now();
-    userId = `${userName}_${userGender}_${userAge}_${timestamp}`;
+    // 生成唯一ID：只用姓名+性别+年龄（不加时间戳）
+    userId = `${userName}_${userGender}_${userAge}`;
     
     // 记录开始时间
     startTime = new Date();
     
-    // 根据用户信息生成随机种子
+    // 根据用户信息生成随机种子（固定的）
     const seedString = `${userName}${userGender}${userAge}`;
     const seed = stringToSeed(seedString);
     CONFIG.IMAGES = seededShuffle(CONFIG.IMAGES, seed);
@@ -248,6 +248,7 @@ function saveProgress() {
         userId: userId,
         currentIndex: currentIndex,
         responses: responses,
+        submittedIndices: Array.from(submittedIndices), // 保存已提交的索引
         shuffledOrder: CONFIG.IMAGES,
         lastUpdate: new Date().toISOString()
     };
@@ -271,6 +272,11 @@ function loadProgress() {
                 currentIndex = data.currentIndex;
                 responses = data.responses || [];
                 
+                // 恢复已提交的索引
+                if (data.submittedIndices) {
+                    submittedIndices = new Set(data.submittedIndices);
+                }
+                
                 if (data.shuffledOrder) {
                     CONFIG.IMAGES = data.shuffledOrder;
                     console.log('已恢复用户的图片顺序');
@@ -291,22 +297,28 @@ function clearProgress() {
     localStorage.removeItem('questionnaireProgress');
 }
 
-// 保存并退出
+// 保存并退出（提前交卷）
 async function saveAndExit() {
     if (validateCurrentRatings()) {
         saveCurrentRatings();
     }
     
-    const completedCount = responses.filter(r => r !== null && r !== undefined).length;
+    // 只统计未提交的数量
+    const unsubmittedResponses = responses.filter((r, idx) => 
+        r !== null && r !== undefined && !submittedIndices.has(idx)
+    );
     
-    if (completedCount === 0) {
-        alert('您还没有完成任何图片的评分！');
+    if (unsubmittedResponses.length === 0) {
+        alert('没有新的数据需要提交！');
         return;
     }
     
+    const completedCount = responses.filter(r => r !== null && r !== undefined).length;
+    
     const confirmed = confirm(
-        `您已完成 ${completedCount} / ${CONFIG.IMAGES.length} 张图片的评分。\n\n` +
-        `点击"确定"将保存已完成的数据并退出。\n` +
+        `您已完成 ${completedCount} / ${CONFIG.IMAGES.length} 张图片的评分。\n` +
+        `本次将提交 ${unsubmittedResponses.length} 张新完成的评分。\n\n` +
+        `点击"确定"将保存数据。\n` +
         `下次打开问卷可以继续未完成的部分。`
     );
     
@@ -315,8 +327,6 @@ async function saveAndExit() {
     }
     
     showLoading(true);
-    
-    const completedResponses = responses.filter(r => r !== null && r !== undefined);
     
     const submissionData = {
         userName: userName,
@@ -329,7 +339,7 @@ async function saveAndExit() {
         totalImages: CONFIG.IMAGES.length,
         completedImages: completedCount,
         isPartialSubmission: true,
-        responses: completedResponses
+        responses: unsubmittedResponses // 只提交未提交的
     };
     
     const success = await submitToGoogleSheets(submissionData);
@@ -337,9 +347,18 @@ async function saveAndExit() {
     showLoading(false);
     
     if (success) {
+        // 标记这些responses为已提交
+        unsubmittedResponses.forEach(r => {
+            submittedIndices.add(r.imageIndex);
+        });
+        
+        // 保存进度（包括已提交标记）
+        saveProgress();
+        
         alert(
             `数据保存成功！\n\n` +
-            `已完成：${completedCount} / ${CONFIG.IMAGES.length} 张\n` +
+            `本次提交：${unsubmittedResponses.length} 张\n` +
+            `总完成：${completedCount} / ${CONFIG.IMAGES.length} 张\n` +
             `您的进度已保存，下次可以继续完成。`
         );
     } else {
@@ -347,9 +366,14 @@ async function saveAndExit() {
     }
 }
 
-// 提交问卷
+// 提交问卷（完整提交）
 async function submitQuestionnaire() {
     showLoading(true);
+    
+    // 只提交未提交的
+    const unsubmittedResponses = responses.filter((r, idx) => 
+        r !== null && r !== undefined && !submittedIndices.has(idx)
+    );
     
     const submissionData = {
         userName: userName,
@@ -360,7 +384,9 @@ async function submitQuestionnaire() {
         endTime: new Date().toISOString(),
         duration: Math.floor((new Date() - startTime) / 1000),
         totalImages: CONFIG.IMAGES.length,
-        responses: responses
+        isPartialSubmission: false,
+        completedImages: CONFIG.IMAGES.length,
+        responses: unsubmittedResponses.length > 0 ? unsubmittedResponses : responses // 如果有未提交的就提交，否则提交全部
     };
     
     const success = await submitToGoogleSheets(submissionData);
@@ -368,6 +394,7 @@ async function submitQuestionnaire() {
     showLoading(false);
     
     if (success) {
+        // 清除保存的进度
         clearProgress();
         
         const duration = Math.floor((new Date() - startTime) / 60000);
