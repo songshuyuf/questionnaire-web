@@ -1,7 +1,7 @@
 // 问卷配置文件
 const CONFIG = {
     // Google Sheets Web App URL（部署后填入）
-    GOOGLE_SHEETS_URL: 'YOUR_GOOGLE_SHEETS_WEB_APP_URL_HERE',
+    GOOGLE_SHEETS_URL: 'https://script.google.com/macros/s/AKfycbx3daZshnasE8CCn_S-ETRoE-3i6SkF4CAODN3N2GDd0M94RJXPzLRZnz2w545Q1tGdyg/exec',
     
     // 图片URL列表（从你的GitHub图床）
     // 格式：从 uploaded_urls/faces_batch1_urls.json 读取
@@ -52,8 +52,8 @@ const CONFIG = {
         ]
     },
     
-    // SAM量表等级数（5级）
-    SAM_LEVELS: 5
+    // SAM量表等级数（9级）
+    SAM_LEVELS: 9
 };
 
 // 从JSON加载图片URL
@@ -86,7 +86,7 @@ function generateTestImages() {
         const num = String(i).padStart(3, '0');
         testImages.push({
             filename: `A${num}.jpg`,
-            url: `https://cdn.jsdelivr.net/gh/songshuyuf/questionnaire-images/faces_batch1/A${num}.bmp`
+            url: `https://cdn.jsdelivr.net/gh/songshuyuf/questionnaire-images/faces_batch1/A${num}.jpg`
         });
     }
     return testImages;
@@ -123,4 +123,3 @@ function stringToSeed(str) {
     }
     return Math.abs(hash);
 }
-
