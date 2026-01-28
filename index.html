@@ -17,47 +17,39 @@
     <div class="page active" id="welcomePage">
         <div class="container">
             <div class="welcome-content">
-                <h1>欢迎参加情绪评估问卷</h1>
-                <p class="description">
-                    本问卷将展示一系列面孔图片，请根据您的真实感受对每张图片进行评分。
-                    问卷大约需要15-20分钟完成。
-                </p>
+                <h1>欢迎参与本次问卷调查</h1>
                 
-                <div class="user-form">
-                    <div class="form-group">
-                        <label for="userName">姓名 *</label>
-                        <input type="text" id="userName" placeholder="请输入您的姓名" required>
-                    </div>
+                <div class="info-box">
+                    <p>本问卷共有 <strong>200</strong> 张图片，每张图片需要您从 <strong>2 个维度</strong> 进行评分：</p>
                     
-                    <div class="form-group">
-                        <label for="userGender">性别 *</label>
-                        <select id="userGender" required>
-                            <option value="">请选择</option>
-                            <option value="male">男</option>
-                            <option value="female">女</option>
-                            <option value="other">其他</option>
-                        </select>
-                    </div>
+                    <ul>
+                        <li><strong>愉悦度：</strong>这张图片让您感到愉快还是不愉快</li>
+                        <li><strong>唤醒度：</strong>这张图片让您感到平静还是激动</li>
+                    </ul>
                     
-                    <div class="form-group">
-                        <label for="userAge">年龄 *</label>
-                        <input type="number" id="userAge" placeholder="请输入您的年龄" min="1" max="120" required>
-                    </div>
+                    <p>请根据您的真实感受作答，没有对错之分。</p>
+                    <p>预计完成时间：<strong>15-20分钟</strong></p>
+                </div>
+                
+                <div class="user-input">
+                    <label for="userName">姓名：</label>
+                    <input type="text" id="userName" placeholder="请输入姓名" required>
+                    
+                    <label for="userGender">性别：</label>
+                    <select id="userGender" required>
+                        <option value="">请选择</option>
+                        <option value="male">男</option>
+                        <option value="female">女</option>
+                        <option value="other">其他</option>
+                    </select>
+                    
+                    <label for="userAge">年龄：</label>
+                    <input type="number" id="userAge" placeholder="请输入年龄" min="1" max="120" required>
                 </div>
                 
                 <button class="btn btn-large btn-primary" onclick="startQuestionnaire()">
-                    开始问卷
+                    开始答题
                 </button>
-                
-                <div class="info-box">
-                    <h3>注意事项：</h3>
-                    <ul>
-                        <li>请在安静的环境中完成问卷</li>
-                        <li>根据您的第一感觉进行评分</li>
-                        <li>问卷支持保存进度，可随时继续</li>
-                        <li>所有数据将严格保密</li>
-                    </ul>
-                </div>
             </div>
         </div>
     </div>
@@ -78,7 +70,7 @@
 
             <!-- 刺激图片 -->
             <div class="stimulus-section">
-                <h2>图片 <span id="imageNumber">A001.bmp</span></h2>
+                <h2>图片 <span id="imageNumber">A001.jpg</span></h2>
                 <div class="image-container" onclick="showLightbox()">
                     <img id="stimulusImage" src="" alt="刺激图片">
                     <p class="image-hint">点击图片可放大查看</p>
@@ -94,9 +86,9 @@
                     </div>
                     <div class="sam-scale" id="valenceIcons"></div>
                     <div class="sam-labels">
-                        <span>很愉快</span>
-                        <span>中性</span>
                         <span>很不愉快</span>
+                        <span>中性</span>
+                        <span>很愉快</span>
                     </div>
                 </div>
 
