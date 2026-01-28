@@ -1,7 +1,7 @@
 // 问卷配置文件
 const CONFIG = {
     // Google Sheets Web App URL（部署后填入）
-    GOOGLE_SHEETS_URL: 'https://script.google.com/macros/s/AKfycbx3daZshnasE8CCn_S-ETRoE-3i6SkF4CAODN3N2GDd0M94RJXPzLRZnz2w545Q1tGdyg/exec',
+    GOOGLE_SHEETS_URL: 'YOUR_GOOGLE_SHEETS_WEB_APP_URL_HERE',
     
     // 图片URL列表（从你的GitHub图床）
     // 格式：从 uploaded_urls/faces_batch1_urls.json 读取
@@ -27,34 +27,34 @@ const CONFIG = {
         }
     },
     
-    // SAM图标路径
+    // SAM图标路径（5级量表）
     SAM_ICONS: {
         valence: [
             'images/sam/valence/v1.png',
             'images/sam/valence/v2.png',
             'images/sam/valence/v3.png',
             'images/sam/valence/v4.png',
-            'images/sam/valence/v5.png',
+            'images/sam/valence/v5.png'
         ],
         arousal: [
             'images/sam/arousal/a1.png',
             'images/sam/arousal/a2.png',
             'images/sam/arousal/a3.png',
             'images/sam/arousal/a4.png',
-            'images/sam/arousal/a5.png',
+            'images/sam/arousal/a5.png'
         ],
         dominance: [
             'images/sam/dominance/d1.png',
             'images/sam/dominance/d2.png',
             'images/sam/dominance/d3.png',
             'images/sam/dominance/d4.png',
-            'images/sam/dominance/d5.png',
+            'images/sam/dominance/d5.png'
         ]
     },
-    SAM_LEVELS: 9
+    
+    // SAM量表等级数（5级）
+    SAM_LEVELS: 5
 };
-
-
 
 // 从JSON加载图片URL
 async function loadImageURLs() {
@@ -92,4 +92,34 @@ function generateTestImages() {
     return testImages;
 }
 
+// 随机打乱数组（使用种子确保同一用户看到相同顺序）
+function seededShuffle(array, seed) {
+    // 复制数组避免修改原数组
+    const shuffled = [...array];
+    
+    // 简单的种子随机数生成器
+    let random = seed;
+    const seededRandom = () => {
+        random = (random * 9301 + 49297) % 233280;
+        return random / 233280;
+    };
+    
+    // Fisher-Yates洗牌算法
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(seededRandom() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    
+    return shuffled;
+}
 
+// 字符串转数字种子
+function stringToSeed(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // 转换为32位整数
+    }
+    return Math.abs(hash);
+}
