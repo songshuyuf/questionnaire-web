@@ -5,8 +5,7 @@ let currentIndex = 0;
 let responses = [];
 let currentRatings = {
     valence: null,
-    arousal: null,
-    dominance: null
+    arousal: null
 };
 let userId = '';
 let startTime = null;
