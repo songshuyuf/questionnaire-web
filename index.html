@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>情绪评估问卷</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- 加载提示 -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <p>正在提交数据...</p>
+    </div>
+
+    <!-- 欢迎页面 -->
+    <div class="page active" id="welcomePage">
+        <div class="container">
+            <div class="welcome-content">
+                <h1>欢迎参加情绪评估问卷</h1>
+                <p class="description">
+                    本问卷将展示一系列面孔图片，请根据您的真实感受对每张图片进行评分。
+                    问卷大约需要15-20分钟完成。
+                </p>
+                
+                <div class="user-form">
+                    <div class="form-group">
+                        <label for="userName">姓名 *</label>
+                        <input type="text" id="userName" placeholder="请输入您的姓名" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="userGender">性别 *</label>
+                        <select id="userGender" required>
+                            <option value="">请选择</option>
+                            <option value="male">男</option>
+                            <option value="female">女</option>
+                            <option value="other">其他</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="userAge">年龄 *</label>
+                        <input type="number" id="userAge" placeholder="请输入您的年龄" min="1" max="120" required>
+                    </div>
+                </div>
+                
+                <button class="btn btn-large btn-primary" onclick="startQuestionnaire()">
+                    开始问卷
+                </button>
+                
+                <div class="info-box">
+                    <h3>注意事项：</h3>
+                    <ul>
+                        <li>请在安静的环境中完成问卷</li>
+                        <li>根据您的第一感觉进行评分</li>
+                        <li>问卷支持保存进度，可随时继续</li>
+                        <li>所有数据将严格保密</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 问卷页面 -->
+    <div class="page" id="questionnairePage">
+        <div class="container">
+            <!-- 进度条 -->
+            <div class="progress-section">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressBar"></div>
+                </div>
+                <div class="progress-text">
+                    <span id="currentNumber">1</span> / <span id="totalNumber">200</span>
+                    (<span id="progressPercent">0.5</span>%)
+                </div>
+            </div>
+
+            <!-- 刺激图片 -->
+            <div class="stimulus-section">
+                <h2>图片 <span id="imageNumber">A001.bmp</span></h2>
+                <div class="image-container" onclick="showLightbox()">
+                    <img id="stimulusImage" src="" alt="刺激图片">
+                    <p class="image-hint">点击图片可放大查看</p>
+                </div>
+            </div>
+
+            <!-- SAM量表 -->
+            <div class="sam-section">
+                <!-- 愉悦度 -->
+                <div class="sam-dimension">
+                    <div class="dimension-header">
+                        <h3>愉悦度 <span class="subtitle">（这张图片让您感到）</span></h3>
+                    </div>
+                    <div class="sam-scale" id="valenceIcons"></div>
+                    <div class="sam-labels">
+                        <span>很愉快</span>
+                        <span>中性</span>
+                        <span>很不愉快</span>
+                    </div>
+                </div>
+
+                <!-- 唤醒度 -->
+                <div class="sam-dimension">
+                    <div class="dimension-header">
+                        <h3>唤醒度 <span class="subtitle">（这张图片让您感到）</span></h3>
+                    </div>
+                    <div class="sam-scale" id="arousalIcons"></div>
+                    <div class="sam-labels">
+                        <span>很平静</span>
+                        <span>中等</span>
+                        <span>很激动</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 导航按钮 -->
+            <div class="navigation">
+                <button class="btn btn-secondary" onclick="previousImage()" id="prevBtn">
+                    ← 上一张
+                </button>
+                <button class="btn btn-warning" onclick="saveAndExit()" id="saveExitBtn">
+                    💾 保存并退出
+                </button>
+                <button class="btn btn-primary" onclick="nextImage()" id="nextBtn">
+                    下一张 →
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 完成页面 -->
+    <div class="page" id="completePage">
+        <div class="container">
+            <div class="complete-content">
+                <div class="success-icon">✓</div>
+                <h1>问卷完成！</h1>
+                <p class="thank-you">感谢您的参与！</p>
+                <div class="completion-info">
+                    <p>完成时间：<span id="completionTime">10 分钟</span></p>
+                    <p>您的数据已成功提交</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 图片灯箱 -->
+    <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+        <img id="lightboxImage" src="" alt="放大图片">
+    </div>
+
+    <!-- 加载配置和脚本 -->
+    <script src="config.js"></script>
+    <script src="js/questionnaire.js"></script>
+    <script src="js/lightbox.js"></script>
+    <script src="js/data-handler.js"></script>
+</body>
+</html>
