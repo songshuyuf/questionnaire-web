@@ -85,7 +85,7 @@ function generateTestImages() {
     for (let i = 1; i <= 200; i++) {
         const num = String(i).padStart(3, '0');
         testImages.push({
-            filename: `A${num}.bmp`,
+            filename: `A${num}.jpg`,
             url: `https://cdn.jsdelivr.net/gh/songshuyuf/questionnaire-images/faces_batch1/A${num}.bmp`
         });
     }
@@ -123,3 +123,4 @@ function stringToSeed(str) {
     }
     return Math.abs(hash);
 }
+
