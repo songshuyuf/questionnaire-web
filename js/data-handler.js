@@ -48,7 +48,9 @@ function flattenResponses(data) {
             valence: response.valence,
             arousal: response.arousal,
             dominance: response.dominance,
-            duration: data.duration
+            duration: data.duration,
+            isPartialSubmission: data.isPartialSubmission || false,
+            completedImages: data.completedImages || data.totalImages
         });
     });
     
@@ -57,6 +59,8 @@ function flattenResponses(data) {
         startTime: data.startTime,
         endTime: data.endTime,
         totalDuration: data.duration,
+        isPartialSubmission: data.isPartialSubmission || false,
+        completedImages: data.completedImages || data.totalImages,
         responses: rows
     };
 }
