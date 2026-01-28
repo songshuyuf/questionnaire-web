@@ -41,20 +41,58 @@ function startQuestionnaire() {
     }
     
     // 生成唯一ID：只用姓名+性别+年龄（不加时间戳）
-    userId = `${userName}_${userGender}_${userAge}`;
+    const newUserId = `${userName}_${userGender}_${userAge}`;
+    
+    // 🆕 检查localStorage里是否有旧数据
+    const saved = localStorage.getItem('questionnaireProgress');
+    if (saved) {
+        try {
+            const data = JSON.parse(saved);
+            // 如果不是同一个人，清空旧数据
+            if (data.userId && data.userId !== newUserId) {
+                console.log('检测到不同用户，清空旧数据');
+                clearProgress();
+                responses = [];
+                submittedIndices = new Set();
+                currentIndex = 0;
+            } else if (data.userId === newUserId) {
+                // 同一个人，恢复进度
+                console.log('检测到同一用户，恢复进度');
+                currentIndex = data.currentIndex || 0;
+                responses = data.responses || [];
+                if (data.submittedIndices) {
+                    submittedIndices = new Set(data.submittedIndices);
+                }
+                if (data.shuffledOrder) {
+                    CONFIG.IMAGES = data.shuffledOrder;
+                }
+            }
+        } catch (e) {
+            console.error('读取旧数据失败:', e);
+        }
+    }
+    
+    userId = newUserId;
     
     // 记录开始时间
-    startTime = new Date();
+    if (!startTime) {
+        startTime = new Date();
+    }
     
     // 根据用户信息生成随机种子（固定的）
     const seedString = `${userName}${userGender}${userAge}`;
     const seed = stringToSeed(seedString);
-    CONFIG.IMAGES = seededShuffle(CONFIG.IMAGES, seed);
-    console.log(`用户 ${userName} 的图片顺序已随机打乱（种子：${seed}）`);
+    
+    // 如果还没有随机打乱过（或者是新用户），打乱图片顺序
+    if (!CONFIG.IMAGES_SHUFFLED) {
+        CONFIG.IMAGES = seededShuffle(CONFIG.IMAGES, seed);
+        CONFIG.IMAGES_SHUFFLED = true;
+        console.log(`用户 ${userName} 的图片顺序已随机打乱（种子：${seed}）`);
+    }
     
     // 切换到问卷页面
     showPage('questionnairePage');
-    loadImage(0);
+    loadImage(currentIndex);
 }
 
 // 初始化SAM图标
@@ -264,7 +302,9 @@ function loadProgress() {
         try {
             const data = JSON.parse(saved);
             
-            if (confirm(`检测到未完成的问卷（进度：${data.currentIndex + 1}/${CONFIG.IMAGES.length}），是否继续？`)) {
+            // 🆕 询问是否继续
+            if (confirm(`检测到未完成的问卷（${data.userName}, ${data.userGender === 'male' ? '男' : data.userGender === 'female' ? '女' : '其他'}, ${data.userAge}岁，进度：${data.currentIndex + 1}/${CONFIG.IMAGES.length}），是否继续？`)) {
+                // 点"确定" - 恢复进度并直接进入问卷
                 userName = data.userName;
                 userGender = data.userGender;
                 userAge = data.userAge;
@@ -277,15 +317,29 @@ function loadProgress() {
                     submittedIndices = new Set(data.submittedIndices);
                 }
                 
+                // 恢复图片顺序
                 if (data.shuffledOrder) {
                     CONFIG.IMAGES = data.shuffledOrder;
+                    CONFIG.IMAGES_SHUFFLED = true;
                     console.log('已恢复用户的图片顺序');
                 }
                 
+                // 恢复开始时间（如果有）
+                if (!startTime) {
+                    startTime = new Date();
+                }
+                
+                // 🆕 直接跳转到问卷页面
+                showPage('questionnairePage');
+                loadImage(currentIndex);
+                
+                // 同时在欢迎页面填入信息（如果用户返回能看到）
                 document.getElementById('userName').value = userName;
                 document.getElementById('userGender').value = userGender;
                 document.getElementById('userAge').value = userAge;
             }
+            // 点"取消" - 不做任何事，停留在欢迎页面
+            // localStorage保留，如果用户输入相同信息会继续
         } catch (e) {
             console.error('加载进度失败:', e);
         }
