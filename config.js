@@ -20,11 +20,6 @@ const CONFIG = {
             subtitle: '（这张图片让您感到）',
             labels: ['很激动', '中等', '很平静']
         },
-        dominance: {
-            name: '支配度',
-            subtitle: '（这张图片让您感到）',
-            labels: ['完全掌控', '中等', '完全被控制']
-        }
     },
     
     // SAM图标路径（5级量表）
@@ -123,4 +118,5 @@ function stringToSeed(str) {
     }
     return Math.abs(hash);
 }
+
 
